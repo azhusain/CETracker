@@ -42,7 +42,7 @@
         .summary-value { font-size: 36px; font-weight: 700; color: #2d3748; margin-bottom: 8px; }
         .summary-subtitle { font-size: 13px; color: #718096; }
         .card-icon { font-size: 24px; margin-bottom: 10px; }
-        .priority-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .priority-section { display: grid; grid-template-columns: minmax(0,2fr) minmax(0,1fr); gap: 20px; margin-bottom: 25px; }
         .priority-panel { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-height: 400px; overflow-y: auto; }
         .priority-panel h2 { font-size: 18px; color: #2d3748; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; background: white; }
         .priority-item { padding: 12px; border-left: 4px solid #cbd5e0; background: #f7fafc; margin-bottom: 10px; border-radius: 6px; cursor: pointer; transition: all 0.3s; }
@@ -864,8 +864,16 @@
                         <input type="text" id="projectNextMilestone" placeholder="What follows?">
                     </div>
                     <div class="form-group" style="grid-column: 1/-1;">
-                        <label>Key Deadlines</label>
+                        <label>Key Deadlines <span style="font-weight:400;color:#a0aec0;font-size:12px;">(free text)</span></label>
                         <input type="text" id="projectKeyDeadlines" placeholder="e.g. Survey live 1 May, Results 15 Jun">
+                    </div>
+                    <div class="form-group">
+                        <label>Key Deadline Date <span style="font-weight:400;color:#a0aec0;font-size:12px;">(optional — for dashboard)</span></label>
+                        <input type="date" id="projectKeyDeadlineDate">
+                    </div>
+                    <div class="form-group">
+                        <label>Key Deadline Label <span style="font-weight:400;color:#a0aec0;font-size:12px;">(optional)</span></label>
+                        <input type="text" id="projectKeyDeadlineLabel" placeholder="e.g. Go/no-go decision">
                     </div>
                     <div class="form-group" style="grid-column: 1/-1;">
                         <label>Risks / Blockers</label>
@@ -1568,129 +1576,160 @@ function setupEventListeners(){
             return f;
         }
 function renderSummary(){
-            const fps=getFilteredProjects(),fts=getFilteredTasks(),today=new Date();
+            const fps=getFilteredProjects(),today=new Date();
             today.setHours(0,0,0,0);
-            
-            const tp=fps.length,tt=fts.length,ct=fts.filter(t=>t.status==='completed').length,cr=tt>0?Math.round((ct/tt)*100):0;
-            
-            const ot=fts.filter(task=>{
-                if(!task.deadline||task.status==='completed')return false;
-                const d=new Date(task.deadline);
-                d.setHours(0,0,0,0);
-                return d<today;
-            });
-            
-            const week=new Date(today);
-            week.setDate(week.getDate()+7);
-            const dw=fts.filter(task=>{
-                if(!task.deadline||task.status==='completed')return false;
-                const d=new Date(task.deadline);
-                d.setHours(0,0,0,0);
-                return d>=today&&d<=week;
-            });
-            
-            const sn=searchQuery?`<div style="color: #1393BD; font-size: 12px; margin-top: 5px;">Filtered by: "${searchQuery}"</div>`:'';
-            
+            const ontrack=fps.filter(p=>p.health==='ontrack').length;
+            const atrisk=fps.filter(p=>p.health==='atrisk').length;
+            const blocked=fps.filter(p=>p.health==='blocked').length;
+            const notstarted=fps.filter(p=>!p.health||p.health==='notstarted').length;
+            const sn=searchQuery?`<div style="color:#1393BD;font-size:11px;margin-top:4px;">Filtered: "${searchQuery}"</div>`:'';
             document.getElementById('summaryGrid').innerHTML=`
-                <div class="summary-card">
-                    <div class="card-icon">📋</div>
-                    <h3>Active Projects</h3>
-                    <div class="summary-value">${tp}</div>
-                    <div class="summary-subtitle">${tt} total tasks${sn}</div>
+                <div class="summary-card" style="border-left:4px solid #1D9E75;">
+                    <h3>On Track</h3>
+                    <div class="summary-value" style="color:#1D9E75;">${ontrack}</div>
+                    <div class="summary-subtitle">projects progressing well${sn}</div>
                 </div>
-                <div class="summary-card" style="cursor: pointer;" onclick="document.querySelector('[data-filter=\\'overdue\\']').click()">
-                    <div class="card-icon">⚠️</div>
-                    <h3>Overdue Tasks</h3>
-                    <div class="summary-value" style="color: #f56565;">${ot.length}</div>
-                    <div class="summary-subtitle">Needs attention</div>
+                <div class="summary-card" style="border-left:4px solid #EF9F27;">
+                    <h3>At Risk</h3>
+                    <div class="summary-value" style="color:#EF9F27;">${atrisk}</div>
+                    <div class="summary-subtitle">flagged or stalling</div>
                 </div>
-                <div class="summary-card" style="cursor: pointer;" onclick="document.querySelector('[data-filter=\\'week\\']').click()">
-                    <div class="card-icon">📅</div>
-                    <h3>Due This Week</h3>
-                    <div class="summary-value">${dw.length}</div>
-                    <div class="summary-subtitle">Upcoming deadlines</div>
+                <div class="summary-card" style="border-left:4px solid #E24B4A;">
+                    <h3>Blocked</h3>
+                    <div class="summary-value" style="color:#E24B4A;">${blocked}</div>
+                    <div class="summary-subtitle">have active blockers</div>
                 </div>
-                <div class="summary-card">
-                    <div class="card-icon">✅</div>
-                    <h3>Completion Rate</h3>
-                    <div class="summary-value">${cr}%</div>
-                    <div class="summary-subtitle">${ct} of ${tt} completed</div>
+                <div class="summary-card" style="border-left:4px solid #888780;">
+                    <h3>Not Started</h3>
+                    <div class="summary-value" style="color:#888780;">${notstarted}</div>
+                    <div class="summary-subtitle">no health status set</div>
                 </div>
             `;
         }
-        
+
         function renderPriorityPanels(){
-            const fts=getFilteredTasks(),today=new Date();
+            const fps=getFilteredProjects(),fts=getFilteredTasks(),today=new Date();
             today.setHours(0,0,0,0);
-            
-            const ot=fts.filter(task=>{
-                if(!task.deadline||task.status==='completed')return false;
-                const d=new Date(task.deadline);
-                d.setHours(0,0,0,0);
-                return d<today;
-            }).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
-            
-            const week=new Date(today);
-            week.setDate(week.getDate()+7);
-            const dw=fts.filter(task=>{
-                if(!task.deadline||task.status==='completed')return false;
-                const d=new Date(task.deadline);
-                d.setHours(0,0,0,0);
-                return d>=today&&d<=week;
-            }).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
-            
-            const hp=fts.filter(task=>task.priority==='high'&&task.status==='pending');
-            
-            let html=`
-                <div class="priority-panel">
-                    <h2>🚨 Overdue Items (${ot.length})</h2>
-                    ${ot.length===0?'<div class="empty-state" style="padding: 20px;">No overdue tasks!</div>':''}
-                    ${ot.slice(0,10).map(task=>{
-                        const p=projects.find(p=>p.id===task.projectId);
-                        const days=Math.floor((today-new Date(task.deadline))/(1000*60*60*24));
-                        return`<div class="priority-item critical">
-                            <div class="item-title">${esc(task.name)}</div>
-                            <div class="item-meta">
-                                <span>👤 ${esc(task.owner)||'Unassigned'}</span>
-                                <span>📂 ${esc(p?.name||'Unknown')}</span>
-                                <span style="color: #f56565; font-weight: 700;">⏰ ${days} day${days>1?'s':''} overdue</span>
-                            </div>
-                        </div>`;
-                    }).join('')}
+            const healthOrder={blocked:0,atrisk:1,ontrack:2,notstarted:3};
+            const sortedProjects=[...fps].sort((a,b)=>{
+                const ha=healthOrder[a.health]??3, hb=healthOrder[b.health]??3;
+                return ha-hb;
+            });
+
+            // Upcoming deadlines: project keyDeadlineDate + task deadlines + comms dates, next 30 days
+            const soon=new Date(today); soon.setDate(soon.getDate()+30);
+            let deadlines=[];
+
+            // From projects keyDeadlineDate
+            fps.forEach(p=>{
+                if(!p.keyDeadlineDate) return;
+                const d=new Date(p.keyDeadlineDate); d.setHours(0,0,0,0);
+                if(d>=today&&d<=soon) deadlines.push({date:d,label:p.keyDeadlineLabel||p.keyDeadlines||'Key deadline',project:p.name,type:'project'});
+            });
+
+            // From tasks
+            fts.forEach(task=>{
+                if(!task.deadline||task.status==='completed') return;
+                const d=new Date(task.deadline); d.setHours(0,0,0,0);
+                if(d>=today&&d<=soon){
+                    const p=projects.find(pr=>pr.id===task.projectId);
+                    deadlines.push({date:d,label:task.name,project:p?.name||'',type:'task'});
+                }
+            });
+
+            // From communications scheduled dates
+            if(typeof communications!=='undefined'){
+                communications.forEach(c=>{
+                    if(!c.date||c.status==='sent') return;
+                    const d=c.date.toDate?c.date.toDate():new Date(c.date); d.setHours(0,0,0,0);
+                    if(d>=today&&d<=soon) deadlines.push({date:d,label:c.title||c.name||'Scheduled comm',project:'Communications',type:'comms'});
+                });
+            }
+
+            deadlines.sort((a,b)=>a.date-b.date);
+
+            const typeIcon={project:'📌',task:'✅',comms:'📢'};
+            const typeColor={project:'#185FA5',task:'#0F6E56',comms:'#854F0B'};
+
+            const dlHtml=deadlines.length===0
+                ?'<div class="empty-state" style="padding:30px;text-align:center;color:#a0aec0;">No upcoming deadlines in the next 30 days</div>'
+                :deadlines.map(dl=>{
+                    const day=dl.date.getDate();
+                    const mon=dl.date.toLocaleString('default',{month:'short'});
+                    const isThisWeek=dl.date<=new Date(today.getTime()+7*86400000);
+                    return`<div style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-bottom:1px solid #e2e8f0;">
+                        <div style="min-width:38px;text-align:center;background:${isThisWeek?'#E0F5F8':'#f7fafc'};border-radius:8px;padding:5px 4px;flex-shrink:0;">
+                            <div style="font-size:17px;font-weight:700;color:${isThisWeek?'#18518F':'#2d3748'};line-height:1;">${day}</div>
+                            <div style="font-size:9px;color:#718096;text-transform:uppercase;">${mon}</div>
+                        </div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-size:13px;font-weight:600;color:#2d3748;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(dl.label)}</div>
+                            <div style="font-size:11px;color:#718096;margin-top:2px;">${esc(dl.project)}</div>
+                            <div style="font-size:10px;color:${typeColor[dl.type]};margin-top:2px;">${typeIcon[dl.type]} ${dl.type==='project'?'Project deadline':dl.type==='task'?'Task':'Communication'}</div>
+                        </div>
+                    </div>`;
+                }).join('');
+
+            const healthDot={ontrack:'#1D9E75',atrisk:'#EF9F27',blocked:'#E24B4A',notstarted:'#888780'};
+            const healthLabel={ontrack:'On track',atrisk:'At risk',blocked:'Blocked',notstarted:'Not started'};
+            const healthBg={ontrack:'#E1F5EE',atrisk:'#FAEEDA',blocked:'#FCEBEB',notstarted:'#F1EFE8'};
+            const healthTxt={ontrack:'#0F6E56',atrisk:'#854F0B',blocked:'#A32D2D',notstarted:'#5F5E5A'};
+
+            const projHtml=sortedProjects.map(p=>{
+                const h=p.health||'notstarted';
+                const pct=p.pct!=null?p.pct:null;
+                const pctBar=pct!=null?`<div style="height:3px;background:#e2e8f0;border-radius:2px;margin-top:4px;max-width:140px;"><div style="height:3px;border-radius:2px;background:${healthDot[h]};width:${pct}%;"></div></div>`:'';
+                const noteHtml=p.currentMilestone?`<div style="font-size:11px;color:#718096;margin-top:2px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px;">${esc(p.currentMilestone)}</div>`:'';
+                return`<div style="display:grid;grid-template-columns:10px 1fr auto auto auto;align-items:start;gap:10px;padding:10px 16px;border-bottom:1px solid #e2e8f0;cursor:pointer;" onmouseover="this.style.background='#f7fafc'" onmouseout="this.style.background=''" onclick="switchToProjectView('${p.id}')">
+                    <span style="width:8px;height:8px;border-radius:50%;background:${healthDot[h]};display:inline-block;margin-top:4px;flex-shrink:0;"></span>
+                    <div style="min-width:0;">
+                        <div style="font-size:13px;font-weight:600;color:#2d3748;">${esc(p.name)}</div>
+                        <div style="font-size:11px;color:#718096;margin-top:1px;">${p.owner?'Owner: '+esc(p.owner):''}${pct!=null?(p.owner?' · ':'')+pct+'% complete':''}</div>
+                        ${pctBar}${noteHtml}
+                    </div>
+                    <span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:${healthBg[h]};color:${healthTxt[h]};white-space:nowrap;">${healthLabel[h]}</span>
+                    <span style="font-size:11px;color:#a0aec0;">${p.owner?(p.owner.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)):'—'}</span>
+                </div>`;
+            }).join('');
+
+            document.getElementById('prioritySection').innerHTML=`
+                <div style="background:white;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,0.08);overflow:hidden;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #e2e8f0;">
+                        <h2 style="font-size:16px;color:#2d3748;font-weight:700;">Project health</h2>
+                        <div style="display:flex;gap:14px;align-items:center;">
+                            <span style="font-size:11px;color:#a0aec0;">sorted by urgency · click to open</span>
+                            <button class="btn btn-primary" style="font-size:12px;padding:6px 12px;" onclick="document.querySelector('[data-view=\\'projects\\']').click()">View all ${fps.length} →</button>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:16px;padding:8px 16px;background:#fafafa;border-bottom:1px solid #e2e8f0;flex-wrap:wrap;">
+                        <span style="font-size:11px;color:#718096;display:flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:#1D9E75;display:inline-block;"></span>On track</span>
+                        <span style="font-size:11px;color:#718096;display:flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:#EF9F27;display:inline-block;"></span>At risk</span>
+                        <span style="font-size:11px;color:#718096;display:flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:#E24B4A;display:inline-block;"></span>Blocked</span>
+                        <span style="font-size:11px;color:#718096;display:flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:#888780;display:inline-block;"></span>Not started</span>
+                    </div>
+                    ${projHtml||'<div class="empty-state" style="padding:30px;text-align:center;color:#a0aec0;">No projects yet</div>'}
                 </div>
-                <div class="priority-panel">
-                    <h2>📅Due This Week (${dw.length})</h2>
-                    ${dw.length===0?'<div class="empty-state" style="padding: 20px;">Nothing due this week</div>':''}
-                    ${dw.slice(0,10).map(task=>{
-                        const p=projects.find(p=>p.id===task.projectId);
-                        return`<div class="priority-item info">
-                            <div class="item-title">${esc(task.name)}</div>
-                            <div class="item-meta">
-                                <span>👤 ${esc(task.owner)||'Unassigned'}</span>
-                                <span>📂 ${esc(p?.name||'Unknown')}</span>
-                                <span>📅 ${formatDate(task.deadline)}</span>
-                            </div>
-                        </div>`;
-                    }).join('')}
-                </div>
-                <div class="priority-panel">
-                    <h2>🎯 High Priority Pending (${hp.length})</h2>
-                    ${hp.length===0?'<div class="empty-state" style="padding: 20px;">No high priority pending</div>':''}
-                    ${hp.slice(0,10).map(task=>{
-                        const p=projects.find(p=>p.id===task.projectId);
-                        return`<div class="priority-item warning">
-                            <div class="item-title">${esc(task.name)}</div>
-                            <div class="item-meta">
-                                <span>👤 ${esc(task.owner)||'Unassigned'}</span>
-                                <span>📂 ${esc(p?.name||'Unknown')}</span>
-                                ${task.deadline?`<span>📅 ${formatDate(task.deadline)}</span>`:''}
-                            </div>
-                        </div>`;
-                    }).join('')}
+                <div style="background:white;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,0.08);overflow:hidden;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #e2e8f0;">
+                        <h2 style="font-size:16px;color:#2d3748;font-weight:700;">Upcoming deadlines</h2>
+                        <button class="btn" style="font-size:12px;padding:6px 12px;background:#f7fafc;" onclick="document.querySelector('[data-view=\\'calendar\\']').click()">Calendar →</button>
+                    </div>
+                    <div style="font-size:11px;color:#a0aec0;padding:8px 16px;background:#fafafa;border-bottom:1px solid #e2e8f0;">
+                        📌 project date &nbsp; ✅ task &nbsp; 📢 communication · next 30 days
+                    </div>
+                    ${dlHtml}
                 </div>
             `;
-            
-            document.getElementById('prioritySection').innerHTML=html;
+        }
+
+        function switchToProjectView(pid){
+            currentView='projects';
+            document.querySelectorAll('.view-btn').forEach(b=>b.classList.toggle('active',b.dataset.view==='projects'));
+            renderCurrentView();
+            setTimeout(()=>{
+                const el=document.getElementById('proj-'+pid)||document.querySelector(`[data-project-id="${pid}"]`);
+                if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+            },100);
         }
         
         // Analytics — toggle state persists across re-renders
@@ -2038,6 +2077,19 @@ function renderCalendar(){
             
             const fd=new Date(y,m,1),ld=new Date(y,m+1,0),sd=fd.getDay(),dim=ld.getDate();
             const fts=getFilteredTasks().filter(t=>t.deadline);
+
+            // Build project deadline entries from keyDeadlineDate
+            const fps=getFilteredProjects().filter(p=>p.keyDeadlineDate&&!p.archived);
+            const projDeadlines=fps.map(p=>({
+                isProjectDeadline:true,
+                date:p.keyDeadlineDate,
+                label:p.keyDeadlineLabel||p.keyDeadlines||'Key deadline',
+                projectName:p.name,
+                health:p.health||'notstarted'
+            }));
+            const healthDotCal={ontrack:'#1D9E75',atrisk:'#EF9F27',blocked:'#E24B4A',notstarted:'#888780'};
+            const healthBgCal={ontrack:'#E1F5EE',atrisk:'#FAEEDA',blocked:'#FCEBEB',notstarted:'#F1EFE8'};
+            const healthTxtCal={ontrack:'#0F6E56',atrisk:'#854F0B',blocked:'#A32D2D',notstarted:'#5F5E5A'};
             
             let html='';
             ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d=>html+=`<div class="calendar-day-header">${d}</div>`);
@@ -2050,19 +2102,46 @@ function renderCalendar(){
             
             for(let day=1;day<=dim;day++){
                 const cd=new Date(y,m,day),isT=cd.getTime()===today.getTime();
+
+                // Tasks on this day
                 const dt=fts.filter(task=>{
                     const dl=new Date(task.deadline);
                     return dl.getFullYear()===y&&dl.getMonth()===m&&dl.getDate()===day;
                 });
+
+                // Project deadlines on this day
+                const pd=projDeadlines.filter(pd=>{
+                    const dl=new Date(pd.date);
+                    return dl.getFullYear()===y&&dl.getMonth()===m&&dl.getDate()===day;
+                });
+
+                const totalItems=pd.length+dt.length;
+                const maxVisible=3;
+                let itemsRendered=0;
+                let itemsHtml='';
+
+                // Project deadlines first (pinned, distinct style)
+                pd.forEach(pdl=>{
+                    if(itemsRendered>=maxVisible) return;
+                    itemsHtml+=`<div class="calendar-task" style="background:${healthBgCal[pdl.health]};color:${healthTxtCal[pdl.health]};border-left:3px solid ${healthDotCal[pdl.health]};font-weight:600;" title="📌 ${esc(pdl.label)} — ${esc(pdl.projectName)}">📌 ${esc(pdl.label)}</div>`;
+                    itemsRendered++;
+                });
+
+                // Then tasks
+                dt.forEach(task=>{
+                    if(itemsRendered>=maxVisible) return;
+                    const p=projects.find(p=>p.id===task.projectId);
+                    const isO=cd<today&&task.status!=='completed';
+                    itemsHtml+=`<div class="calendar-task${task.priority?` priority-${task.priority}`:''}" style="background:${isO?'#fed7d7':'#edf2f7'};color:${isO?'#742a2a':'#2d3748'};" title="${esc(task.name)} - ${esc(p?.name||'Unknown')}">${esc(task.name)}</div>`;
+                    itemsRendered++;
+                });
+
+                const overflow=totalItems-maxVisible;
                 
                 html+=`<div class="calendar-day ${isT?'today':''}">
                     <div class="day-number">${day}</div>
-                    ${dt.slice(0,3).map(task=>{
-                        const p=projects.find(p=>p.id===task.projectId);
-                        const isO=cd<today&&task.status!=='completed';
-                        return`<div class="calendar-task${task.priority?` priority-${task.priority}`:''}" style="background: ${isO?'#fed7d7':'#edf2f7'}; color: ${isO?'#742a2a':'#2d3748'};" title="${esc(task.name)} - ${esc(p?.name||'Unknown')}">${esc(task.name)}</div>`;
-                    }).join('')}
-                    ${dt.length>3?`<div class="calendar-task" style="background: #cbd5e0; color: #2d3748;">+${dt.length-3} more</div>`:''}
+                    ${itemsHtml}
+                    ${overflow>0?`<div class="calendar-task" style="background:#cbd5e0;color:#2d3748;">+${overflow} more</div>`:''}
                 </div>`;
             }
             
@@ -2663,6 +2742,8 @@ function openBulkModal(type){
                 document.getElementById('projectCurrentMilestone').value=p.currentMilestone||'';
                 document.getElementById('projectNextMilestone').value=p.nextMilestone||'';
                 document.getElementById('projectKeyDeadlines').value=p.keyDeadlines||'';
+                document.getElementById('projectKeyDeadlineDate').value=p.keyDeadlineDate||'';
+                document.getElementById('projectKeyDeadlineLabel').value=p.keyDeadlineLabel||'';
                 document.getElementById('projectBlockers').value=p.blockers||'';
             }else{
                 document.getElementById('projectName').value='';
@@ -2674,6 +2755,8 @@ function openBulkModal(type){
                 document.getElementById('projectCurrentMilestone').value='';
                 document.getElementById('projectNextMilestone').value='';
                 document.getElementById('projectKeyDeadlines').value='';
+                document.getElementById('projectKeyDeadlineDate').value='';
+                document.getElementById('projectKeyDeadlineLabel').value='';
                 document.getElementById('projectBlockers').value='';
             }
             
@@ -2703,6 +2786,8 @@ function openBulkModal(type){
                 currentMilestone:document.getElementById('projectCurrentMilestone').value.trim()||null,
                 nextMilestone:document.getElementById('projectNextMilestone').value.trim()||null,
                 keyDeadlines:document.getElementById('projectKeyDeadlines').value.trim()||null,
+                keyDeadlineDate:document.getElementById('projectKeyDeadlineDate').value||null,
+                keyDeadlineLabel:document.getElementById('projectKeyDeadlineLabel').value.trim()||null,
                 blockers:document.getElementById('projectBlockers').value.trim()||null,
             };
 
@@ -3497,6 +3582,7 @@ function renderCommTable(containerId, comms) {
                 ${campaign ? `<div style="font-size: 11px; color: #1393BD; margin-top: 4px;">Campaign: ${esc(campaign.name)}</div>` : ''}
             </td>
                     <td>
+                        ${comm.status === 'sent' ? `<span style="font-size:12px;color:#718096;font-style:italic;">—</span>` : `
                         <div class="workflow-status tooltip-trigger">
                             <div class="workflow-item">
                                 <span class="workflow-icon">${contentStatus === 'approved' ? '✅' : '📝'}</span>
@@ -3509,7 +3595,6 @@ function renderCommTable(containerId, comms) {
                                 <span class="workflow-label">Design:</span>
                                 <span class="workflow-value ${designStatus}">${formatWorkflowStatus(designStatus)}</span>
                             </div>
-                            
                             ${(comm.designsRequired || comm.approvalNotes) ? `
                             <div class="tooltip-content">
                                 ${comm.designsRequired ? `
@@ -3526,7 +3611,7 @@ function renderCommTable(containerId, comms) {
                                 ` : ''}
                             </div>
                             ` : ''}
-                        </div>
+                        </div>`}
                     </td>
                     <td><span class="main-status-badge main-status-${comm.status}">${formatMainStatus(comm.status)}</span></td>
                     <td>
