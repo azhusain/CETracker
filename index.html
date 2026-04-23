@@ -8,9 +8,9 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #EDF6F8; min-height: 100vh; padding: 20px; }
         .container { max-width: 1800px; margin: 0 auto; }
-        .loading { text-align: center; padding: 40px; color: white; font-size: 18px; }
+        .loading { text-align: center; padding: 40px; color: #18518F; font-size: 18px; }
         .header { background: white; padding: 25px 30px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); margin-bottom: 25px; }
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 20px; }
         .header-controls { display: flex; flex-direction: column; gap: 15px; width: 100%; }
@@ -19,21 +19,21 @@
         .header h1 { color: #2d3748; font-size: 28px; }
         .header-actions { display: flex; gap: 15px; align-items: center; flex-shrink: 0; }
         .search-box { padding: 10px 15px; border: 2px solid #e2e8f0; border-radius: 8px; width: 300px; font-size: 14px; }
-        .search-box:focus { outline: none; border-color: #667eea; }
+        .search-box:focus { outline: none; border-color: #1393BD; }
         .view-toggle { display: flex; gap: 5px; background: #f7fafc; padding: 4px; border-radius: 8px; flex-shrink: 0; }
         .view-btn { padding: 8px 16px; border: none; background: transparent; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; color: #4a5568; transition: all 0.3s; }
-        .view-btn.active { background: white; color: #667eea; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .view-btn.active { background: white; color: #1393BD; box-shadow: 0 2px 8px rgba(19,147,189,0.15); }
         .quick-filters { display: flex; gap: 10px; flex-wrap: wrap; flex-shrink: 0; }
         .quick-filter { padding: 8px 16px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; font-size: 14px; font-weight: 600; color: #4a5568; transition: all 0.3s; }
-        .quick-filter.active { background: #667eea; color: white; border-color: #667eea; }
+        .quick-filter.active { background: #1393BD; color: white; border-color: #1393BD; }
         .archive-toggle { padding: 8px 16px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; font-size: 14px; font-weight: 600; color: #4a5568; transition: all 0.3s; }
         .archive-toggle.active { background: #ed8936; color: white; border-color: #ed8936; }
         .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
-        .btn-primary { background: #667eea; color: white; }
-        .btn-primary:hover { background: #5568d3; transform: translateY(-2px); }
+        .btn-primary { background: #1393BD; color: white; }
+        .btn-primary:hover { background: #18518F; transform: translateY(-2px); }
         .btn-secondary { background: #48bb78; color: white; }
         .btn-danger { background: #f56565; color: white; padding: 8px 16px; font-size: 12px; }
-        .btn-edit { background: #4299e1; color: white; padding: 8px 16px; font-size: 12px; }
+        .btn-edit { background: #2FB9CD; color: white; padding: 8px 16px; font-size: 12px; }
         .btn-sm { padding: 6px 12px; font-size: 12px; }
         .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px; }
         .summary-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.3s; cursor: pointer; }
@@ -49,22 +49,22 @@
         .priority-item:hover { background: #edf2f7; transform: translateX(4px); }
         .priority-item.critical { border-left-color: #f56565; }
         .priority-item.warning { border-left-color: #ed8936; }
-        .priority-item.info { border-left-color: #4299e1; }
+        .priority-item.info { border-left-color: #1393BD; }
         .item-title { font-weight: 600; color: #2d3748; font-size: 14px; margin-bottom: 4px; }
         .item-meta { font-size: 12px; color: #718096; display: flex; gap: 15px; flex-wrap: wrap; }
         .charts-section { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 25px; }
         .an-toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
         .an-dropdown-wrap { position: relative; }
         .an-dd-btn { padding: 8px 16px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; font-size: 14px; font-weight: 600; color: #4a5568; cursor: pointer; transition: all .2s; white-space: nowrap; }
-        .an-dd-btn:hover { border-color: #667eea; color: #667eea; }
-        .an-dd-btn .an-count { display: inline-block; background: #667eea; color: white; border-radius: 10px; font-size: 11px; padding: 1px 7px; margin-left: 4px; }
+        .an-dd-btn:hover { border-color: #1393BD; color: #1393BD; }
+        .an-dd-btn .an-count { display: inline-block; background: #1393BD; color: white; border-radius: 10px; font-size: 11px; padding: 1px 7px; margin-left: 4px; }
         .an-dd-menu { display: none; position: absolute; top: calc(100% + 6px); right: 0; background: white; border: 2px solid #e2e8f0; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); min-width: 200px; z-index: 200; padding: 8px 0; }
         .an-dd-menu.open { display: block; }
         .an-dd-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; cursor: pointer; font-size: 14px; color: #4a5568; transition: background .15s; user-select: none; }
         .an-dd-item:hover { background: #f7fafc; }
         .an-dd-item.checked { color: #2d3748; font-weight: 600; }
         .an-dd-check { width: 16px; height: 16px; border-radius: 4px; border: 2px solid #cbd5e0; background: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 10px; transition: all .15s; }
-        .an-dd-item.checked .an-dd-check { background: #667eea; border-color: #667eea; color: white; }
+        .an-dd-item.checked .an-dd-check { background: #1393BD; border-color: #1393BD; color: white; }
         .an-dd-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
         .an-dd-divider { height: 1px; background: #e2e8f0; margin: 6px 0; }
         .an-kpi-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
@@ -85,9 +85,9 @@
         .calendar-nav { display: flex; gap: 10px; }
         .calendar-grid {display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; width: 100%; table-layout: fixed;}
         .calendar-day {min-height: 100px; border: 2px solid #e2e8f0; border-radius: 8px; padding: 8px; background: white; transition: all 0.3s; overflow: hidden; box-sizing: border-box; display: flex; flex-direction: column;}
-        .calendar-day:hover {border-color: #667eea; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);}
+        .calendar-day:hover {border-color: #1393BD; box-shadow: 0 2px 8px rgba(19,147,189,0.2);}
         .calendar-day.other-month {background: #f7fafc; color: #cbd5e0;}
-        .calendar-day.today {border-color: #667eea; background: #eef2ff;}
+        .calendar-day.today {border-color: #1393BD; background: #E0F5F8;}
         .day-number { font-weight: 700; font-size: 14px; margin-bottom: 5px; color: #2d3748; }
         .calendar-task { font-size: 11px; padding: 3px 6px; margin-bottom: 3px; border-radius: 4px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: all 0.2s; background: #edf2f7; color: #2d3748; }
         .calendar-task:hover { transform: scale(1.05); }
@@ -98,7 +98,7 @@
         .kanban-count { background: #edf2f7; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
         .kanban-tasks { min-height: 200px; }
         .kanban-task { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 10px; cursor: move; transition: all 0.3s; }
-        .kanban-task:hover { border-color: #667eea; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2); transform: translateY(-2px); }
+        .kanban-task:hover { border-color: #1393BD; box-shadow: 0 4px 12px rgba(19,147,189,0.2); transform: translateY(-2px); }
         .kanban-task.dragging { opacity: 0.5; }
         .kanban-task-title { font-weight: 600; color: #2d3748; margin-bottom: 8px; }
         .kanban-task-meta { display: flex; gap: 8px; flex-wrap: wrap; font-size: 11px; color: #718096; }
@@ -106,7 +106,7 @@
         .person-group { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .person-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; }
         .person-name { font-size: 20px; font-weight: 700; color: #2d3748; }
-        .task-count-badge { background: #667eea; color: white; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+        .task-count-badge { background: #1393BD; color: white; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
         .bulk-actions-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); display: none; z-index: 1000; flex-wrap: wrap; gap: 10px; align-items: center; }
         .bulk-actions-bar.active { display: flex; }
         .bulk-count { font-weight: 700; color: #2d3748; margin-right: 15px; }
@@ -114,16 +114,16 @@
 
         /* PROJECT NAVIGATION STYLES */
         .projects-wrapper { position: relative; }
-        .nav-mode-toggle { display: flex; gap: 5px; background: #f7fafc; padding: 4px; border-radius: 8px; margin-bottom: 20px; width: fit-content; }
+        .nav-mode-toggle { display: flex; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 9px; width: fit-content; }
         .nav-mode-btn { padding: 8px 16px; border: none; background: transparent; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; color: #4a5568; transition: all 0.3s; }
-        .nav-mode-btn.active { background: white; color: #667eea; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .nav-mode-btn.active { background: white; color: #1393BD; box-shadow: 0 2px 8px rgba(19,147,189,0.18); }
         
         /* STACKED VIEW (Original) */
         .projects-container { display: flex; flex-direction: column; gap: 20px; }
         .project-card { background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.3s; }
         .project-card:hover { transform: translateY(-4px); }
         .project-card.archived { opacity: 0.6; }
-        .project-header { padding: 25px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+        .project-header { padding: 25px 30px; background: linear-gradient(135deg, #18518F 0%, #1393BD 100%); color: white; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
         .project-title { display: flex; align-items: center; gap: 15px; flex: 1; }
         .project-title h2 { font-size: 24px; font-weight: 700; }
         .project-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
@@ -136,15 +136,15 @@
         /* HYBRID TABS VIEW */
         .hybrid-tabs-container { display: none; }
         .hybrid-tabs-container.active { display: block; }
-        .tabs-header-bar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0; margin-bottom: 0; }
+        .tabs-header-bar { background: linear-gradient(135deg, #18518F 0%, #1393BD 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0; margin-bottom: 0; }
         .tabs-header-title { font-size: 22px; font-weight: 700; margin-bottom: 15px; }
         .tabs-nav-container { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; background: rgba(255,255,255,0.1); padding: 8px; border-radius: 8px; }
         .project-tab { background: rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; white-space: nowrap; }
         .project-tab:hover { background: rgba(255,255,255,0.3); }
-        .project-tab.active { background: white; color: #667eea; }
+        .project-tab.active { background: white; color: #1393BD; }
         .tab-badge { background: #f56565; color: white; padding: 2px 6px; border-radius: 10px; font-size: 11px; font-weight: 700; }
         .tab-stat { background: rgba(0,0,0,0.1); padding: 2px 8px; border-radius: 10px; font-size: 11px; }
-        .project-tab.active .tab-stat { background: rgba(102,126,234,0.2); color: #667eea; }
+        .project-tab.active .tab-stat { background: rgba(19,147,189,0.15); color: #1393BD; }
         .more-dropdown { background: rgba(255,255,255,0.2); padding: 10px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; position: relative; }
         .more-dropdown:hover { background: rgba(255,255,255,0.3); }
         .dropdown-menu { display: none; position: absolute; top: 100%; right: 0; margin-top: 8px; background: white; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); min-width: 200px; z-index: 100; }
@@ -158,29 +158,29 @@
         /* SIDEBAR VIEW */
         .sidebar-layout { display: none; }
         .sidebar-layout.active { display: flex; gap: 0; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
-        .projects-sidebar { width: 280px; background: #2d3748; color: white; padding: 20px; min-height: 600px; max-height: 800px; overflow-y: auto; }
+        .projects-sidebar { width: 280px; background: #1F3867; color: white; padding: 20px; min-height: 600px; max-height: 800px; overflow-y: auto; }
         .sidebar-title { font-size: 16px; font-weight: 700; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; color: #a0aec0; }
         .sidebar-search { background: rgba(255,255,255,0.1); border: none; padding: 10px 12px; border-radius: 8px; width: 100%; color: white; margin-bottom: 20px; font-size: 14px; }
         .sidebar-search::placeholder { color: rgba(255,255,255,0.6); }
         .sidebar-project-list { display: flex; flex-direction: column; gap: 4px; }
         .sidebar-project-item { padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s; background: rgba(255,255,255,0.05); }
         .sidebar-project-item:hover { background: rgba(255,255,255,0.1); }
-        .sidebar-project-item.active { background: #667eea; }
+        .sidebar-project-item.active { background: #1393BD; }
         .sidebar-project-name { font-weight: 600; margin-bottom: 6px; font-size: 14px; }
         .sidebar-project-stats { font-size: 11px; color: #cbd5e0; display: flex; gap: 10px; flex-wrap: wrap; }
         .sidebar-project-item.active .sidebar-project-stats { color: rgba(255,255,255,0.9); }
         .sidebar-main-content { flex: 1; background: white; padding: 30px; overflow-y: auto; max-height: 800px; }
         .subcategory { margin-bottom: 25px; border: 2px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
-        .subcategory-header { padding: 15px 20px; background: #edf2f7; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+        .subcategory-header { padding: 15px 20px; background: #EBF6F9; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
         .subcategory-header h4 { color: #2d3748; font-size: 16px; flex: 1; }
         .subcategory-body { max-height: 0; overflow: hidden; transition: max-height 0.3s; }
         .subcategory-body.expanded { max-height: 5000px; }
         .subcategory-content { padding: 20px; }
         .task-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
         .task-card { background: white; border: 2px solid #e2e8f0; border-radius: 10px; padding: 15px; transition: all 0.3s; }
-        .task-card:hover { border-color: #667eea; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1); }
+        .task-card:hover { border-color: #1393BD; box-shadow: 0 4px 12px rgba(19,147,189,0.12); }
         .task-card.overdue { border-color: #f56565; background: #fff5f5; }
-        .task-card.selected { border-color: #667eea; background: #eef2ff; }
+        .task-card.selected { border-color: #1393BD; background: #E0F5F8; }
         .task-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; gap: 10px; }
         .task-title-section { display: flex; align-items: center; gap: 10px; flex: 1; flex-wrap: wrap; }
         .task-title-section h5 { color: #2d3748; font-size: 16px; font-weight: 600; }
@@ -189,7 +189,7 @@
         .priority-medium { background: #fbd38d; color: #7c2d12; }
         .priority-low { background: #9ae6b4; color: #22543d; }
         .status-badge { padding: 4px 10px; border-radius: 16px; font-size: 11px; font-weight: 600; display: inline-block; }
-        .status-ongoing { background: #bee3f8; color: #2c5282; }
+        .status-ongoing { background: #C8EDF5; color: #18518F; }
         .status-completed { background: #c6f6d5; color: #22543d; }
         .status-pending { background: #fed7d7; color: #742a2a; }
         .status-onhold { background: #e2e8f0; color: #4a5568; }
@@ -202,7 +202,7 @@
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568; font-size: 14px; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 15px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #667eea; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #1393BD; }
         .form-group textarea { min-height: 100px; resize: vertical; }
         .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px; flex-wrap: wrap; }
         .empty-state { text-align: center; padding: 40px; color: #718096; background: white; border-radius: 12px; }
@@ -221,12 +221,12 @@
 /* Communications Sub-Nav */
 .sub-nav { display: flex; gap: 8px; background: #edf2f7; padding: 6px; border-radius: 8px; margin-bottom: 20px; width: fit-content; }
 .sub-nav-btn { padding: 8px 16px; border: none; background: transparent; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; color: #4a5568; transition: all 0.3s; }
-.sub-nav-btn.active { background: white; color: #667eea; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.sub-nav-btn.active { background: white; color: #1393BD; box-shadow: 0 2px 8px rgba(19,147,189,0.15); }
 
 /* Calendar Filter Bar */
 .calendar-filter-bar { display: flex; gap: 8px; background: #edf2f7; padding: 6px; border-radius: 8px; margin-bottom: 15px; }
 .calendar-filter-btn { padding: 6px 14px; border: none; background: transparent; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; color: #4a5568; transition: all 0.3s; }
-.calendar-filter-btn.active { background: white; color: #667eea; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.calendar-filter-btn.active { background: white; color: #1393BD; box-shadow: 0 2px 8px rgba(19,147,189,0.15); }
 
 /* Communications Table */
 .comms-table { width: 100%; border-collapse: separate; border-spacing: 0; background: white; }
@@ -235,7 +235,7 @@
 .comms-table td { padding: 15px; border-bottom: 1px solid #e2e8f0; font-size: 14px; color: #2d3748; vertical-align: middle; background: white; }
 .comms-table tbody tr:not(.details-row) { cursor: pointer; transition: background 0.2s; background: white; }
 .comms-table tbody tr:not(.details-row):hover { background: #f7fafc; }
-.comms-table tbody tr.expanded { background: #eef2ff !important; }
+.comms-table tbody tr.expanded { background: #E0F5F8 !important; }
 .details-row { background: white !important; cursor: default; }
 .details-row:hover { background: white !important; }
 .details-row td { padding: 0; border-bottom: 2px solid #e2e8f0; }
@@ -282,7 +282,7 @@
 .calendar-item.project-item,
 .calendar-item.comm-item { display: block; padding: 2px 6px; margin: 2px 0; border-radius: 4px; font-size: 0.85rem; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 .calendar-item.project-item {background: #e2e8f0; color: #2d3748; border-left: 3px solid #4a5568;}
-.calendar-item.comm-item {background: #d6bcfa; color: #44337a; border-left: 3px solid #764ba2;}
+.calendar-item.comm-item {background: #d6bcfa; color: #44337a; border-left: 3px solid #8056A3;}
 
 .btn-cancel { background: #cbd5e0; color: #2d3748; }
 
@@ -424,8 +424,8 @@
 /* Campaign Cards */
 .campaigns-grid { display: grid; gap: 20px; }
 .campaign-card { background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 20px; transition: all 0.3s; }
-.campaign-card:hover { border-color: #667eea; box-shadow: 0 4px 12px rgba(102,126,234,0.2); }
-.campaign-card.expanded { border-color: #667eea; background: #f8fafc; }
+.campaign-card:hover { border-color: #1393BD; box-shadow: 0 4px 12px rgba(19,147,189,0.2); }
+.campaign-card.expanded { border-color: #1393BD; background: #F0FAFC; }
 .campaign-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
 .campaign-title-section { flex: 1; }
 .campaign-title { font-size: 20px; font-weight: 700; color: #2d3748; margin-bottom: 5px; }
@@ -448,17 +448,17 @@
 
 .campaign-description { font-size: 14px; color: #475569; line-height: 1.6; margin-bottom: 15px; padding: 12px; background: #f8fafc; border-radius: 8px; }
 
-.expand-toggle { margin-top: 10px; padding: 8px 16px; background: #eef2ff; color: #667eea; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; transition: all 0.3s; }
-.expand-toggle:hover { background: #e0e7ff; }
+.expand-toggle { margin-top: 10px; padding: 8px 16px; background: #E0F5F8; color: #1393BD; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; transition: all 0.3s; }
+.expand-toggle:hover { background: #C8EDF5; }
 
 .campaign-comms { display: none; margin-top: 20px; padding-top: 20px; border-top: 2px solid #e2e8f0; animation: fadeIn 0.3s ease-in; }
 .campaign-comms.show { display: block; }
 .campaign-comms h4 { color: #2d3748; font-size: 16px; margin-bottom: 15px; }
 
-.sequence-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; padding: 0 6px; background: #667eea; color: white; border-radius: 12px; font-size: 11px; font-weight: 700; margin-right: 8px; }
+.sequence-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; padding: 0 6px; background: #1393BD; color: white; border-radius: 12px; font-size: 11px; font-weight: 700; margin-right: 8px; }
 
-.campaign-badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; background: #e0e7ff; color: #4338ca; white-space: nowrap; cursor: pointer; transition: all 0.2s; }
-.campaign-badge:hover { background: #c7d2fe; }
+.campaign-badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; background: #D6EFF5; color: #18518F; white-space: nowrap; cursor: pointer; transition: all 0.2s; }
+.campaign-badge:hover { background: #B8E4F0; }
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-10px); }
@@ -481,10 +481,10 @@
 .align-marketing { background: rgba(66,153,225,0.3); color: #bee3f8; }
 
 /* Project meta strip below header */
-.project-meta-strip { background: rgba(0,0,0,0.15); padding: 10px 30px; display: flex; gap: 20px; flex-wrap: wrap; border-top: 1px solid rgba(255,255,255,0.1); }
-.meta-chip { font-size: 12px; color: rgba(255,255,255,0.85); }
-.meta-chip--blocker { color: #fed7d7; }
-.meta-label { font-weight: 700; opacity: 0.7; }
+.project-meta-strip { background: #1F3867; padding: 11px 30px; display: flex; gap: 24px; flex-wrap: wrap; border-top: none; }
+.meta-chip { font-size: 12px; color: rgba(255,255,255,0.95); display: flex; align-items: center; gap: 5px; }
+.meta-chip--blocker { color: #fca5a5; }
+.meta-label { font-weight: 800; color: rgba(255,255,255,0.55); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; margin-right: 2px; }
 
 /* Strategic Overview table */
 .overview-wrap { background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); overflow: hidden; }
@@ -492,7 +492,7 @@
 .overview-top h2 { font-size: 20px; font-weight: 700; color: #2d3748; }
 .overview-filters { display: flex; gap: 6px; flex-wrap: wrap; }
 .ov-filter { padding: 6px 14px; border: 2px solid #e2e8f0; border-radius: 20px; font-size: 13px; font-weight: 600; color: #4a5568; background: white; cursor: pointer; transition: all 0.2s; }
-.ov-filter.active { background: #667eea; color: white; border-color: #667eea; }
+.ov-filter.active { background: #1393BD; color: white; border-color: #1393BD; }
 .overview-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; border-bottom: 2px solid #e2e8f0; }
 .ov-stat { padding: 16px 20px; text-align: center; border-right: 1px solid #e2e8f0; }
 .ov-stat:last-child { border-right: none; }
@@ -515,7 +515,7 @@
 .ov-col-blocker { width: 9%; }
 .ov-pname { font-weight: 700; color: #2d3748; display: block; margin-bottom: 2px; }
 .ov-priority { font-size: 11px; font-weight: 600; text-transform: uppercase; }
-.ov-owner-circle { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: #eef2ff; color: #667eea; font-size: 11px; font-weight: 700; }
+.ov-owner-circle { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: #D6EFF5; color: #18518F; font-size: 11px; font-weight: 700; }
 .ov-align-tag { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; }
 .ov-align-aligned { background: #c6f6d5; color: #22543d; }
 .ov-align-exec { background: #fbd38d; color: #7c2d12; }
@@ -525,13 +525,13 @@
 .ov-health-ontrack { background: #c6f6d5; color: #22543d; }
 .ov-health-atrisk { background: #fbd38d; color: #7c2d12; }
 .ov-health-blocked { background: #fed7d7; color: #742a2a; }
-.ov-health-completed { background: #bee3f8; color: #2c5282; }
+.ov-health-completed { background: #C8EDF5; color: #18518F; }
 .ov-health-notstarted { background: #e2e8f0; color: #4a5568; }
 .ov-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .ov-dot-ontrack { background: #48bb78; }
 .ov-dot-atrisk { background: #ed8936; }
 .ov-dot-blocked { background: #f56565; }
-.ov-dot-completed { background: #4299e1; }
+.ov-dot-completed { background: #1393BD; }
 .ov-dot-notstarted { background: #a0aec0; }
 .ov-pbar-wrap { display: flex; align-items: center; gap: 6px; }
 .ov-pbar { flex: 1; height: 5px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
@@ -540,11 +540,27 @@
 .ov-pbar-mid { background: #ed8936; }
 .ov-pbar-lo { background: #f56565; }
 .ov-milestone { font-size: 12px; color: #4a5568; line-height: 1.4; }
-.ov-dates { font-size: 11px; color: #667eea; font-weight: 600; line-height: 1.6; }
+.ov-dates { font-size: 11px; color: #1393BD; font-weight: 600; line-height: 1.6; }
 .ov-blocker { font-size: 12px; color: #e53e3e; line-height: 1.4; }
 .ov-none { font-size: 12px; color: #a0aec0; font-style: italic; }
-.ov-jump { font-size: 11px; color: #667eea; font-weight: 600; margin-top: 4px; display: none; }
+.ov-jump { font-size: 11px; color: #1393BD; font-weight: 600; margin-top: 4px; display: none; }
 .overview-table tbody tr:hover .ov-jump { display: block; }
+
+/* OWNER FILTER + TAG STYLES */
+.projects-control-bar { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); padding: 16px 20px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 14px; }
+.projects-control-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.projects-control-divider { height: 1px; background: #e2e8f0; margin: 0; }
+.control-row-label { font-size: 11px; font-weight: 800; color: #a0aec0; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; min-width: 80px; }
+.nav-mode-toggle { display: flex; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 9px; width: fit-content; }
+.nav-mode-btn { padding: 7px 16px; border: none; background: transparent; border-radius: 7px; cursor: pointer; font-size: 13px; font-weight: 600; color: #64748b; transition: all 0.2s; white-space: nowrap; }
+.nav-mode-btn.active { background: white; color: #1393BD; box-shadow: 0 2px 8px rgba(19,147,189,0.18); }
+.nav-mode-btn:hover:not(.active) { color: #4a5568; background: rgba(255,255,255,0.6); }
+.owner-filter-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.owner-filter-btn { padding: 6px 14px; border: 2px solid #e2e8f0; border-radius: 20px; background: white; cursor: pointer; font-size: 12px; font-weight: 600; color: #4a5568; transition: all 0.2s; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; }
+.owner-filter-btn:hover { border-color: #1393BD; color: #1393BD; background: #E0F5F8; }
+.owner-filter-btn.active { background: #1393BD; color: white; border-color: #1393BD; box-shadow: 0 2px 8px rgba(19,147,189,0.3); }
+.owner-tag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px; border-radius: 20px; font-size: 12px; font-weight: 700; background: rgba(255,255,255,0.22); color: white; border: 1.5px solid rgba(255,255,255,0.4); letter-spacing: 0.01em; }
+.owner-tag-avatar { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.35); display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; flex-shrink: 0; }
 
     </style>
 </head>
@@ -625,7 +641,7 @@
         <span style="font-size: 13px; color: #4a5568; font-weight: 600;">Project Items</span>
     </div>
     <div style="display: flex; align-items: center; gap: 8px;">
-        <div style="width: 20px; height: 20px; background: #d6bcfa; border-radius: 4px; border-left: 3px solid #764ba2;"></div>
+        <div style="width: 20px; height: 20px; background: #d6bcfa; border-radius: 4px; border-left: 3px solid #8056A3;"></div>
         <span style="font-size: 13px; color: #4a5568; font-weight: 600;">Communication Items</span>
     </div>
 </div>      
@@ -635,10 +651,24 @@
         
         <!-- NEW: Projects Wrapper with 3 Navigation Modes -->
         <div class="projects-wrapper" id="projectsWrapper" style="display: none;">
-            <div class="nav-mode-toggle">
-                <button class="nav-mode-btn active" data-mode="stacked">📊 Stacked</button>
-                <button class="nav-mode-btn" data-mode="tabs">🗂️ Hybrid Tabs</button>
-                <button class="nav-mode-btn" data-mode="sidebar">📂 Sidebar</button>
+            <!-- Unified Control Bar -->
+            <div class="projects-control-bar">
+                <div class="projects-control-row">
+                    <span class="control-row-label">View</span>
+                    <div class="nav-mode-toggle">
+                        <button class="nav-mode-btn active" data-mode="stacked">📊 Stacked</button>
+                        <button class="nav-mode-btn" data-mode="tabs">🗂️ Hybrid Tabs</button>
+                        <button class="nav-mode-btn" data-mode="sidebar">📂 Sidebar</button>
+                    </div>
+                </div>
+                <div class="projects-control-divider"></div>
+                <!-- Owner Filter Bar -->
+                <div class="projects-control-row">
+                    <span class="control-row-label">Owner</span>
+                    <div class="owner-filter-bar" id="ownerFilterBar">
+                        <button class="owner-filter-btn active" data-owner="all">All Projects</button>
+                    </div>
+                </div>
             </div>
             
             <!-- Stacked View -->
@@ -749,7 +779,7 @@
         <div class="modal-content" style="max-width:600px;">
             <div class="modal-header"><h2>Import Communications from Excel</h2></div>
             <div>
-                <div style="background:#eef2ff;border-radius:8px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:#4a5568;line-height:1.6;">
+                <div style="background:#E0F5F8;border-radius:8px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:#4a5568;line-height:1.6;">
                     <strong>Expected format:</strong> Excel file with columns: <strong>Date, Mailbox, Subject, Channel, Audience</strong><br>
                     One sheet per month (e.g. "Jan 2026"). All imported comms will be marked as <strong>Sent</strong>.<br>
                     Duplicates (same Subject + Date) will be skipped automatically.
@@ -764,7 +794,7 @@
                 </div>
                 <div id="importProgress" style="display:none;margin-top:12px;">
                     <div style="background:#e2e8f0;border-radius:4px;height:8px;overflow:hidden;">
-                        <div id="importProgressBar" style="height:100%;background:#667eea;width:0%;transition:width .3s;border-radius:4px;"></div>
+                        <div id="importProgressBar" style="height:100%;background:#1393BD;width:0%;transition:width .3s;border-radius:4px;"></div>
                     </div>
                     <div id="importProgressText" style="font-size:13px;color:#4a5568;margin-top:6px;text-align:center;"></div>
                 </div>
@@ -1009,7 +1039,7 @@
             </div>
 
             <!-- ADVANCED FIELDS — collapsible -->
-            <div id="commAdvancedToggle" style="margin: 8px 0 4px; cursor:pointer; display:flex; align-items:center; gap:6px; color:#667eea; font-size:13px; font-weight:600; user-select:none;">
+            <div id="commAdvancedToggle" style="margin: 8px 0 4px; cursor:pointer; display:flex; align-items:center; gap:6px; color:#1393BD; font-size:13px; font-weight:600; user-select:none;">
                 <span id="commAdvancedArrow" style="transition:transform .2s; display:inline-block;">▶</span> More details
             </div>
             <div id="commAdvancedFields" style="display:none;">
@@ -1136,7 +1166,7 @@
         const db = getFirestore(app);
         
         // Variables - Added projectNavMode, activeTabProjectId, dropdownOpen
-        let projects=[],allTasks=[],dashboardTitle='📊 Project Tracker Dashboard',currentProjectId=null,currentSubcategoryId=null,currentTaskId=null,editMode=false,confirmCallback=null,expandedProjects=new Set(),expandedSubcategories=new Set(),currentView='dashboard',currentFilter='all',searchQuery='',showArchived=false,selectedTasks=new Set(),currentCalendarDate=new Date(),charts={},projectNavMode='stacked',activeTabProjectId=null,dropdownOpen=false;
+        let projects=[],allTasks=[],dashboardTitle='📊 Project Tracker Dashboard',currentProjectId=null,currentSubcategoryId=null,currentTaskId=null,editMode=false,confirmCallback=null,expandedProjects=new Set(),expandedSubcategories=new Set(),currentView='dashboard',currentFilter='all',searchQuery='',showArchived=false,selectedTasks=new Set(),currentCalendarDate=new Date(),charts={},projectNavMode='stacked',activeTabProjectId=null,dropdownOpen=false,ownerFilter='all';
 
         async function init(){
             try{
@@ -1466,7 +1496,37 @@ function setupEventListeners(){
         }
         
         function getFilteredProjects(){
-            return projects.filter(p=>showArchived?p.archived:!p.archived);
+            let fps=projects.filter(p=>showArchived?p.archived:!p.archived);
+            if(ownerFilter!=='all'){
+                fps=fps.filter(p=>(p.owner||'').toLowerCase()===ownerFilter.toLowerCase());
+            }
+            return fps;
+        }
+
+        function buildOwnerFilterBar(){
+            const bar=document.getElementById('ownerFilterBar');
+            if(!bar)return;
+            // Collect all unique owners from active projects
+            const owners=[...new Set(
+                projects.filter(p=>!p.archived&&p.owner&&p.owner.trim())
+                        .map(p=>p.owner.trim())
+            )].sort();
+            let html=`<span class="owner-filter-label">👤 Filter by Owner:</span>
+                <button class="owner-filter-btn ${ownerFilter==='all'?'active':''}" data-owner="all">All Projects</button>`;
+            owners.forEach(o=>{
+                const initials=o.split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2);
+                html+=`<button class="owner-filter-btn ${ownerFilter===o.toLowerCase()?'active':''}" data-owner="${esc(o.toLowerCase())}">
+                    <span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#1393BD;color:white;font-size:10px;font-weight:800;margin-right:4px;">${initials}</span>${esc(o)}</button>`;
+            });
+            bar.innerHTML=html;
+            bar.querySelectorAll('.owner-filter-btn').forEach(btn=>{
+                btn.addEventListener('click',()=>{
+                    ownerFilter=btn.dataset.owner;
+                    bar.querySelectorAll('.owner-filter-btn').forEach(b=>b.classList.remove('active'));
+                    btn.classList.add('active');
+                    renderProjects();
+                });
+            });
         }
         
         function getFilteredTasks(){
@@ -1529,7 +1589,7 @@ function renderSummary(){
                 return d>=today&&d<=week;
             });
             
-            const sn=searchQuery?`<div style="color: #667eea; font-size: 12px; margin-top: 5px;">Filtered by: "${searchQuery}"</div>`:'';
+            const sn=searchQuery?`<div style="color: #1393BD; font-size: 12px; margin-top: 5px;">Filtered by: "${searchQuery}"</div>`:'';
             
             document.getElementById('summaryGrid').innerHTML=`
                 <div class="summary-card">
@@ -1700,10 +1760,10 @@ function renderSummary(){
                 btn.onclick=(e)=>{e.stopPropagation();menu.classList.toggle('open');document.getElementById(menuId==='anKpiDropMenu'?'anChartDropMenu':'anKpiDropMenu').classList.remove('open');};
             }
 
-            buildDropdown('anKpiDropMenu','anKpiDropBtn','anKpiCount',kpiDefs,anKpiVisible,()=>'#667eea');
+            buildDropdown('anKpiDropMenu','anKpiDropBtn','anKpiCount',kpiDefs,anKpiVisible,()=>'#1393BD');
 
             const togDefs=[
-                {id:'workload',       label:'Workload',          dot:'#667eea'},
+                {id:'workload',       label:'Workload',          dot:'#1393BD'},
                 {id:'statusByProject',label:'Status by project', dot:'#48bb78'},
                 {id:'overdue',        label:'Overdue',           dot:'#f56565'},
                 {id:'completion',     label:'Completion %',      dot:'#ed8936'},
@@ -1911,14 +1971,14 @@ function renderSummary(){
                 const keys=Object.keys(alignCounts).filter(k=>k!=='unset');
                 if(alignCounts['unset']>0)keys.push('unset');
                 card.insertAdjacentHTML('beforeend',makeLegend(keys.map(k=>({
-                    color:k==='unset'?'#cbd5e0':(alignColors[k]||'#667eea'),
+                    color:k==='unset'?'#cbd5e0':(alignColors[k]||'#1393BD'),
                     label:`${k==='unset'?'Not set':(alignMap[k]||k)} (${alignCounts[k]})`
                 })))+makeCanvas('anStrategyChart',220));
                 charts.strategy=new Chart(document.getElementById('anStrategyChart'),{
                     type:'doughnut',
                     data:{labels:keys.map(k=>k==='unset'?'Not set':(alignMap[k]||k)),
                         datasets:[{data:keys.map(k=>alignCounts[k]),
-                        backgroundColor:keys.map(k=>k==='unset'?'#cbd5e0':(alignColors[k]||'#667eea')),borderWidth:0}]},
+                        backgroundColor:keys.map(k=>k==='unset'?'#cbd5e0':(alignColors[k]||'#1393BD')),borderWidth:0}]},
                     options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:false}}}
                 });
             }
@@ -1933,14 +1993,14 @@ function renderSummary(){
                 const hkeys=Object.keys(healthCounts).filter(k=>k!=='unset');
                 if(healthCounts['unset']>0)hkeys.push('unset');
                 card.insertAdjacentHTML('beforeend',makeLegend(hkeys.map(k=>({
-                    color:k==='unset'?'#cbd5e0':(healthColors[k]||'#667eea'),
+                    color:k==='unset'?'#cbd5e0':(healthColors[k]||'#1393BD'),
                     label:`${k==='unset'?'Not set':(healthMap[k]||k)} (${healthCounts[k]})`
                 })))+makeCanvas('anHealthChart',220));
                 charts.health=new Chart(document.getElementById('anHealthChart'),{
                     type:'doughnut',
                     data:{labels:hkeys.map(k=>k==='unset'?'Not set':(healthMap[k]||k)),
                         datasets:[{data:hkeys.map(k=>healthCounts[k]),
-                        backgroundColor:hkeys.map(k=>k==='unset'?'#cbd5e0':(healthColors[k]||'#667eea')),borderWidth:0}]},
+                        backgroundColor:hkeys.map(k=>k==='unset'?'#cbd5e0':(healthColors[k]||'#1393BD')),borderWidth:0}]},
                     options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:false}}}
                 });
             }
@@ -2066,7 +2126,7 @@ function renderCalendar(){
                 c.addEventListener('dragover',e=>{
                     e.preventDefault();
                     e.dataTransfer.dropEffect='move';
-                    c.style.backgroundColor='#eef2ff';
+                    c.style.backgroundColor='#E0F5F8';
                 });
                 c.addEventListener('dragleave',()=>c.style.backgroundColor='');
                 c.addEventListener('drop',async e=>{
@@ -2087,6 +2147,7 @@ function renderCalendar(){
         }
 // NEW: Main renderProjects function - switches between 3 modes
         function renderProjects(){
+            buildOwnerFilterBar();
             const con=document.getElementById('projectsContainer');
             const tabCon=document.getElementById('hybridTabsContainer');
             const sideCon=document.getElementById('sidebarLayout');
@@ -2142,17 +2203,20 @@ function renderCalendar(){
                 const alignBadge=p.alignment?`<span class="align-badge align-${p.alignment}">${formatAlignment(p.alignment)}</span>`:'';
                 const pctBadge=p.pct!=null?`<span style="background:rgba(255,255,255,0.2);padding:4px 10px;border-radius:12px;font-size:12px;font-weight:600;">${p.pct}%</span>`:'';
                 const prioBadge=p.priority?`<span class="priority-badge priority-${p.priority}">${p.priority}</span>`:``;
+                const ownerBadge=p.owner?`<span class="owner-tag"><span class="owner-tag-avatar">${p.owner.split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2)}</span>${esc(p.owner)}</span>`:'';
                 return`<div class="project-card ${isE?'expanded':''} ${p.archived?'archived':''}" data-project-id="${p.id}">
                     <div class="project-header">
                         <div class="project-title">
                             <h2>${esc(p.name)} ${p.archived?'(Archived)':''}</h2>
-                            ${prioBadge}${healthBadge}${alignBadge}${pctBadge}
+                            ${prioBadge}${healthBadge}${alignBadge}${pctBadge}${ownerBadge}
                         </div>
                         <div class="project-actions">
-                            <button class="btn btn-edit edit-project-btn" data-project-id="${p.id}">Edit</button>
-                            <button class="btn ${p.archived?'btn-secondary':'btn-edit'} archive-project-btn" data-project-id="${p.id}">${p.archived?'Unarchive':'Archive'}</button>
-                            <button class="btn btn-danger delete-project-btn" data-project-id="${p.id}">Delete</button>
-                            <span class="expand-icon">▼</span>
+                            <div style="display:flex;gap:6px;align-items:center;">
+                                <button class="btn btn-edit edit-project-btn" data-project-id="${p.id}" style="padding:7px 14px;font-size:12px;">✏️ Edit</button>
+                                <button class="btn ${p.archived?'btn-secondary':'btn-edit'} archive-project-btn" data-project-id="${p.id}" style="padding:7px 14px;font-size:12px;background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.5);color:white;">${p.archived?'📤 Unarchive':'📦 Archive'}</button>
+                                <button class="btn btn-danger delete-project-btn" data-project-id="${p.id}" style="padding:7px 14px;font-size:12px;">🗑️ Delete</button>
+                            </div>
+                            <span class="expand-icon" style="margin-left:8px;">▼</span>
                         </div>
                     </div>
                     ${(p.currentMilestone||p.blockers||p.keyDeadlines)?`
@@ -2228,13 +2292,14 @@ function renderCalendar(){
             if(ap){
                 const healthBadge=ap.health?`<span class="ov-health-badge ov-health-${ap.health}" style="font-size:12px;">${formatHealth(ap.health)}</span>`:'';
                 const alignBadge=ap.alignment?`<span class="ov-align-tag ov-align-${ap.alignment}" style="font-size:11px;">${formatAlignment(ap.alignment)}</span>`:'';
-                const pctLabel=ap.pct!=null?`<span style="background:#eef2ff;color:#667eea;padding:4px 10px;border-radius:12px;font-size:12px;font-weight:700;">${ap.pct}% complete</span>`:'';
+                const pctLabel=ap.pct!=null?`<span style="background:#E0F5F8;color:#1393BD;padding:4px 10px;border-radius:12px;font-size:12px;font-weight:700;">${ap.pct}% complete</span>`:'';
+                const ownerLabel=ap.owner?`<span style="background:#E0F5F8;color:#1393BD;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;">👤 ${esc(ap.owner)}</span>`:'';
                 document.getElementById('tabsProjectContent').innerHTML=`
                     <div style="margin-bottom: 20px;">
                         <h2 style="color: #2d3748; font-size: 28px; margin-bottom: 10px;">${esc(ap.name)}</h2>
                         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px;">
                             ${ap.priority?`<span class="priority-badge priority-${ap.priority}">${ap.priority} priority</span>`:''}
-                            ${healthBadge}${alignBadge}${pctLabel}
+                            ${healthBadge}${alignBadge}${pctLabel}${ownerLabel}
                         </div>
                         ${(ap.currentMilestone||ap.nextMilestone||ap.blockers)?`<div style="background:#f7fafc;border-radius:8px;padding:12px 16px;margin-bottom:12px;display:flex;gap:20px;flex-wrap:wrap;font-size:13px;">
                             ${ap.currentMilestone?`<div><strong style="color:#4a5568;">Now:</strong> ${esc(ap.currentMilestone)}</div>`:''}
@@ -2277,13 +2342,14 @@ function renderCalendar(){
             if(ap){
                 const healthBadge=ap.health?`<span class="ov-health-badge ov-health-${ap.health}" style="font-size:12px;">${formatHealth(ap.health)}</span>`:'';
                 const alignBadge=ap.alignment?`<span class="ov-align-tag ov-align-${ap.alignment}" style="font-size:11px;">${formatAlignment(ap.alignment)}</span>`:'';
-                const pctLabel=ap.pct!=null?`<span style="background:#eef2ff;color:#667eea;padding:4px 10px;border-radius:12px;font-size:12px;font-weight:700;">${ap.pct}% complete</span>`:'';
+                const pctLabel=ap.pct!=null?`<span style="background:#E0F5F8;color:#1393BD;padding:4px 10px;border-radius:12px;font-size:12px;font-weight:700;">${ap.pct}% complete</span>`:'';
+                const ownerLabel=ap.owner?`<span style="background:#E0F5F8;color:#1393BD;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;">👤 ${esc(ap.owner)}</span>`:'';
                 document.getElementById('sidebarMainContent').innerHTML=`
                     <div style="margin-bottom: 20px;">
                         <h2 style="color: #2d3748; font-size: 28px; margin-bottom: 10px;">${esc(ap.name)}</h2>
                         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px;">
                             ${ap.priority?`<span class="priority-badge priority-${ap.priority}">${ap.priority} priority</span>`:''}
-                            ${healthBadge}${alignBadge}${pctLabel}
+                            ${healthBadge}${alignBadge}${pctLabel}${ownerLabel}
                         </div>
                         ${(ap.currentMilestone||ap.nextMilestone||ap.blockers)?`<div style="background:#f7fafc;border-radius:8px;padding:12px 16px;margin-bottom:12px;display:flex;gap:20px;flex-wrap:wrap;font-size:13px;">
                             ${ap.currentMilestone?`<div><strong style="color:#4a5568;">Now:</strong> ${esc(ap.currentMilestone)}</div>`:''}
@@ -2331,6 +2397,7 @@ function renderCalendar(){
                     <div class="sidebar-project-name">${p.archived?'📦 ':''}${esc(p.name)}</div>
                     <div class="sidebar-project-stats">
                         <span>${comp}/${pt.length} tasks</span>
+                        ${p.owner?`<span>👤 ${esc(p.owner)}</span>`:''}
                         ${od>0?`<span style="color: #feb2b2;">${od} overdue</span>`:''}
                     </div>
                 </div>`;
@@ -2353,8 +2420,6 @@ function renderProjectContent(p){
                     <div class="task-list">${gt.map(t=>renderTaskCard(p.id,null,t)).join('')}</div>
                     <button class="btn btn-secondary btn-sm add-task-btn" data-project-id="${p.id}" data-subcategory-id="" style="margin-top: 10px;">➕ Add General Task</button>
                 </div>`;
-            }else if(currentFilter==='all'){
-                html+=`<button class="btn btn-secondary btn-sm add-task-btn" data-project-id="${p.id}" data-subcategory-id="" style="margin-bottom: 20px;">➕ Add General Task</button>`;
             }
             
             if(p.subcategories.length>0){
@@ -2386,7 +2451,12 @@ function renderProjectContent(p){
             }
             
             if(currentFilter==='all'){
-                html+=`<button class="btn btn-primary btn-sm add-subcategory-btn" data-project-id="${p.id}" style="margin-top: 20px;">➕ Add Subcategory</button>`;
+                // Clean grouped action bar at bottom of project
+                const hasContent = gt.length > 0 || p.subcategories.length > 0;
+                html+=`<div style="display:flex;gap:10px;align-items:center;margin-top:${hasContent?'24px':'0'};padding:${hasContent?'20px 0 4px':'4px 0'};${hasContent?'border-top:2px solid #e2e8f0;':''}flex-wrap:wrap;">
+                    ${gt.length===0?`<button class="btn btn-secondary btn-sm add-task-btn" data-project-id="${p.id}" data-subcategory-id="">➕ Add General Task</button>`:''}
+                    <button class="btn btn-primary btn-sm add-subcategory-btn" data-project-id="${p.id}">📁 Add Subcategory</button>
+                </div>`;
             }
             
             return html;
@@ -3424,7 +3494,7 @@ function renderCommTable(containerId, comms) {
             <td style="white-space: nowrap;">${formatCommDate(comm.date)}</td>
             <td>
                 <strong>${esc(comm.subject)}</strong>
-                ${campaign ? `<div style="font-size: 11px; color: #667eea; margin-top: 4px;">Campaign: ${esc(campaign.name)}</div>` : ''}
+                ${campaign ? `<div style="font-size: 11px; color: #1393BD; margin-top: 4px;">Campaign: ${esc(campaign.name)}</div>` : ''}
             </td>
                     <td>
                         <div class="workflow-status tooltip-trigger">
@@ -4355,7 +4425,7 @@ renderCalendar = function() {
                 });
             });
             summary.innerHTML = `
-                <div style="background:#eef2ff;padding:8px 14px;border-radius:20px;font-size:13px;font-weight:600;color:#667eea;">${filtered.length} total sent</div>
+                <div style="background:#E0F5F8;padding:8px 14px;border-radius:20px;font-size:13px;font-weight:600;color:#1393BD;">${filtered.length} total sent</div>
                 ${Object.entries(byChannel).map(([ch,n]) =>
                     `<div style="background:#f7fafc;padding:8px 14px;border-radius:20px;font-size:13px;color:#4a5568;">${ch}: ${n}</div>`
                 ).join('')}
@@ -4386,7 +4456,7 @@ renderCalendar = function() {
                                 <td style="padding:10px 14px;font-weight:600;">${esc(c.subject)}</td>
                                 <td style="padding:10px 14px;">${(Array.isArray(c.channels)?c.channels:[c.channels||'']).join(', ')}</td>
                                 <td style="padding:10px 14px;">${esc(c.audience||'')}</td>
-                                <td style="padding:10px 14px;color:#667eea;">${campaign ? esc(campaign.name) : '<span style="color:#a0aec0;">—</span>'}</td>
+                                <td style="padding:10px 14px;color:#1393BD;">${campaign ? esc(campaign.name) : '<span style="color:#a0aec0;">—</span>'}</td>
                             </tr>`;
                         }).join('')}
                     </tbody>
