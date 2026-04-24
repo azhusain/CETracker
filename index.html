@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HR Project Tracker - Enhanced</title>
+    <title>C&E Department Project Tracker</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
@@ -3508,7 +3508,8 @@ function renderCommDashboard() {
     if (!summaryGrid) return;
 
     const pending = communications.filter(c => 
-        !c.contentReceived || !c.contentApproved || !c.designsReceived || !c.designsApproved
+        c.status !== 'sent' &&
+        (!c.contentReceived || !c.contentApproved || !c.designsReceived || !c.designsApproved)
     ).length;
 
     const inReview = communications.filter(c => c.status === 'in_review').length;
